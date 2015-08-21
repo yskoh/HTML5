@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Canvas Test</title>
+    <style type="text/css">
+    
+    </style>
+  </head>
+<body>
+  <section>
+    <div id="gameScreen">
+        <canvas id="canvas" width="500" height="500">
+          
+        </canvas>
+    </div>
+  </section>
+<script type="text/javascript">
+var canvas;  
+var ctx;
+// var x = 400;
+// var y = 300;
+var WIDTH = 500;
+var HEIGHT = 500; 
+
+function circle(x,y,r) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2, true);
+  ctx.fill();
+}
+
+function background(x,y,w,h) {
+  ctx.beginPath();
+  ctx.rect(x,y,w,h);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function column(p,q,r,s){
+  ctx.beginPath();
+  ctx.rect(p,q,r,s);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function stick(x,y,w,h){
+  ctx.beginPath();
+  ctx.rect(x,y,w,h);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function stickFall(x,y,w,h){
+  //(150-10,바뀌는 y 값 원을 그리며, 10,200)
+  if(y > 0){
+    y = y-5;
+    console.log(y);
+  }
+  else{
+    console.log("end");
+  }
+}
+ 
+function clear() {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+}
+
+function init() {
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  return setInterval(draw, 10);
+}
+
+
+function draw() {
+  clear();
+  ctx.fillStyle = "#FAF7F8";
+  background(0,0,WIDTH,HEIGHT);
+  ctx.fillStyle = "green";
+  circle(100, 290, 10);
+  ctx.fillStyle ="#444444";
+  column(50,300,100,200);
+ ctx.fillStyle ="#444444";
+  column(200,300,50,200);
+  ctx.fillStyle="#eeeeee";
+  stick(150-10,100,10,200);
+  //transform stick
+
+  // make it fall
+  //roll the ball
+}
+  stickFall(150-10,100,10,200);
+
+
+init();
+</script>
+
+</body>
+</html>
