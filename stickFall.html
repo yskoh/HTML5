@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Canvas Test</title>
+    <script type="text/javascript" src="lib/jquery.min.js"></script>
     <style type="text/css">
       #gameScreen{
         position: relative;
@@ -15,15 +16,19 @@
 
       #stick {
         transform-origin: 100px 300px;
-        animation: fall 2s;
       }
-
+        .stickChange{
+        animation: fall 2s;
+        }
       #svgBlock{
         position:absolute; left: 0px; top:0px; z-index: 2;
       }
 
       #circ{
-        animation: roll 2s;
+      }
+      .ballRoll{
+        animation: roll 2s ease-in;
+        animation-delay: 2s;
       }
 
       @keyframes fall{
@@ -51,5 +56,20 @@
         </svg>
     </div>
   </section>
+  <script type="text/javascript">
+  var mouseState;
+  mouseState = 1;
+    if(mouseState === 1){
+    document.getElementById('stick').classList.add('stickChange');
+    // make the stick fall
+    //   make the ball roll
+    ballRoll();
+    }
+    
+    function ballRoll(){
+      document.getElementById('circ').classList.add('ballRoll');
+    }
+
+  </script>
 </body>
 </html>
