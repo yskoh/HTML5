@@ -2,6 +2,7 @@ var BridgeGame = {};
 
 BridgeGame.Map = (function() {
     var pressed = false;
+    var moveFinished = false;
 
     return {
         isPressed: function() {
@@ -24,6 +25,32 @@ BridgeGame.Map = (function() {
         },
         getWidth: function() {
             return this.getCanvas().width;
+        },
+        isMoveFinished : function(){
+        	return moveFinished;
+        },
+        moveToNextStage : function() {
+        	if(!BridgeGame.thirdColumn) {
+        		BridgeGame.thirdColumn = new BridgeGame.Column(BridgeGame.secondColumn.getEndPoint() + BridgeGame.distance);	
+        	} else {
+        		BridgeGame.thirdColumn.drawAgain();
+        		this.moveMapToLeft();
+        	}
+        },
+        moveMapToLeft : function() {
+        	if(BridgeGame.secondColumn.getStartPoint() > BridgeGame.START_X) {
+        		BridgeGame.firstColumn.moveLeft();
+        		BridgeGame.secondColumn.moveLeft();
+        		BridgeGame.thirdColumn.moveLeft();
+        	} else {
+        		moveFinished = true;
+        		BridgeGame.firstColumn = BridgeGame.secondColumn;
+        		BridgeGame.secondColumn = BridgeGame.thirdColumn;
+        		BridgeGame.thirdColumn = null;
+        	}
+        },
+        resetStatus: function() {
+        	moveFinished = false;
         }
     }
 })();
@@ -46,11 +73,17 @@ BridgeGame.Column.prototype.getHeight = function() {
 BridgeGame.Column.prototype.getWidth = function() {
     return this.width;
 };
+BridgeGame.Column.prototype.getStartPoint = function() {
+    return this.startX;
+};
 BridgeGame.Column.prototype.getMidPoint = function() {
     return this.startX + (this.width / 2);
 };
 BridgeGame.Column.prototype.getEndPoint = function() {
     return this.startX + this.width;
+};
+BridgeGame.Column.prototype.moveLeft = function() {
+    return this.startX--;
 };
 BridgeGame.Column.prototype.draw = function(startX) {
     var context = BridgeGame.Map.getContext();
@@ -68,24 +101,60 @@ BridgeGame.Column.prototype.__setRandomWidth = function() {
     this.width = BridgeGame.getRandomValue(colWidths);
 };
 
-
-
 // 모듈 패턴
 BridgeGame.Ball = (function() {
     var color = "pink";
     var startAngle = 0;
     var endAngle = 2 * Math.PI;
+    var moveFinished = false;
+    var ballRadius = 10;
+    var positionX = -1;
 
     return {
         draw: function(startX, columnHeight) {
             var context = BridgeGame.Map.getContext();
-            var ballRadius = 10;
             context.beginPath();
             context.arc(startX, BridgeGame.Map.getHeight() - columnHeight - ballRadius, ballRadius, startAngle, endAngle);
             context.fillStyle = color;
             context.fill();
             context.closePath();
-        }
+        },
+        isMoveFinished : function(){
+        	return moveFinished;
+        },
+        resetStatus : function() {
+        	moveFinished = false;
+        	positionX = -1;
+        },
+        roll : function() {
+        	var stick = BridgeGame.Stick;
+        	var distance = BridgeGame.secondColumn.getStartPoint() - BridgeGame.firstColumn.getEndPoint();
+        	// if no Bridge
+        	if(!stick.length) {
+        		return;
+        	}
+
+     		// longer or shorter than distance
+     		if(stick.length < distance || stick.length > distance + BridgeGame.secondColumn.getWidth()){
+				console.log("DIE!!");
+			}
+
+			//if long enough
+			if(stick.length > distance && stick.length < distance + BridgeGame.secondColumn.getWidth()){
+				var context = BridgeGame.Map.getContext();
+				context.beginPath();
+				context.arc(BridgeGame.firstColumn.getMidPoint() + positionX, BridgeGame.Map.getHeight() - BridgeGame.secondColumn.getHeight() - ballRadius, ballRadius, startAngle, endAngle);
+				context.fillStyle = 'pink';
+				context.fill();
+				context.closePath();
+
+				if(positionX < BridgeGame.secondColumn.getMidPoint() - BridgeGame.firstColumn.getMidPoint()){
+					positionX +=5;
+				} else {
+					moveFinished = true;
+				}
+			}
+        },
     }
 })();
 
@@ -115,14 +184,9 @@ BridgeGame.Stick = {
         
         if (map.isPressed()) {
         	this.length += this.growAmount;
-            // window.requestAnimationFrame(this.growRender.bind(this, columnEndPoint, columnHeight));
         } 
-        // else {
-        //     this.fall(columnEndPoint, columnHeight);
-        // }
     },
     fall: function(columnEndPoint, columnHeight) {
-    	// window.requestAnimationFrame(this.fallRender.bind(this, columnEndPoint, columnHeight));
     	this.fallRender(columnEndPoint, columnHeight);
     },
     fallRender: function(columnEndPoint, columnHeight){
@@ -140,8 +204,8 @@ BridgeGame.Stick = {
         endX = stickX + Math.cos(this.radianToDegree(this.angle)) * this.length;
         endY = stickY + Math.sin(this.radianToDegree(this.angle)) * this.length;
 
-        context.moveTo(stickX,stickY);
-		context.lineTo(endX,endY);
+        context.moveTo(stickX,stickY + this.thickness / 2);
+		context.lineTo(endX,endY + this.thickness / 2);
 		context.closePath();
 		context.stroke();
 
@@ -149,20 +213,19 @@ BridgeGame.Stick = {
             this.angle += 3;
         } else {
         	this.fallOverFinished = true;
-        	this.angle = -90;
-        	this.length = 0;
         }
     },
     isFallOverFinished: function(){
     	return this.fallOverFinished;
     },
-    setFallOverStatus : function(flag) {
-    	this.fallOverFinished = flag;
-    },
     radianToDegree: function(angle) {
         return angle / 180 * Math.PI;
     },
-
+    resetStatus: function() {
+    	this.angle = -90;
+        this.length = 0;
+        this.fallOverFinished = false;
+    }
 }
 
 // 게임을 완전 처음 들어왔을때
@@ -182,26 +245,40 @@ BridgeGame.addMouseEvent = function() {
 }
 
 BridgeGame.drawAll = function() {
-	if(BridgeGame.Stick.isFallOverFinished() == false) {
-		BridgeGame.requestAnimationFrame = window.requestAnimationFrame(this.drawAll.bind(this));
-	} else {
-		window.cancelAnimationFrame(BridgeGame.requestAnimationFrame);
-		BridgeGame.Stick.setFallOverStatus(false);
-	}
-
 	var map = BridgeGame.Map;
 	map.getContext().clearRect(0, 0, map.getWidth(), map.getHeight());
 
 	BridgeGame.firstColumn.drawAgain();
 	BridgeGame.secondColumn.drawAgain();
-	BridgeGame.drawBall();
-
+	
+	if(BridgeGame.Stick.angle != 0) {
+		BridgeGame.drawBall();	
+	}
+	
 	if(BridgeGame.Map.isPressed()) {
 		BridgeGame.Stick.grow();	
 	}
 
-	if(BridgeGame.Map.isPressed() == false) {
+	if(BridgeGame.Map.isPressed() == false && BridgeGame.Map.isMoveFinished() == false) {
 		BridgeGame.Stick.fall(BridgeGame.firstColumn.getEndPoint(), BridgeGame.firstColumn.getHeight());
+	}
+
+	if(BridgeGame.Stick.isFallOverFinished()) {
+		BridgeGame.Ball.roll();
+	}
+
+	if(BridgeGame.Ball.isMoveFinished()){
+		BridgeGame.Map.moveToNextStage();
+	}
+
+	if(BridgeGame.Map.isMoveFinished() == false) {
+		BridgeGame.requestAnimationFrame = window.requestAnimationFrame(this.drawAll.bind(this));
+	} else {
+		window.cancelAnimationFrame(BridgeGame.requestAnimationFrame);
+
+		BridgeGame.Stick.resetStatus();
+		BridgeGame.Ball.resetStatus();
+		BridgeGame.Map.resetStatus();
 	}
 }
 
@@ -222,7 +299,9 @@ BridgeGame.getRandomValue = function(array) {
 
 BridgeGame.START_X = 50;
 BridgeGame.colDistances = [50, 100];
+BridgeGame.distance = BridgeGame.getRandomValue(BridgeGame.colDistances);
 BridgeGame.firstColumn = new BridgeGame.Column(BridgeGame.START_X);
-BridgeGame.secondColumn = new BridgeGame.Column(BridgeGame.firstColumn.getEndPoint() + BridgeGame.getRandomValue(BridgeGame.colDistances));
+BridgeGame.secondColumn = new BridgeGame.Column(BridgeGame.firstColumn.getEndPoint() + BridgeGame.distance);
+BridgeGame.thirdColumn = null;
 
 BridgeGame.gameInit();
