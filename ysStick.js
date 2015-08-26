@@ -3,8 +3,8 @@ var context = canvas.getContext('2d');
 var stickLength = 0;
 var pressed = false;
 var columns = [];
-var colWidths =[10,20,25,40,45,60,65,,80,85,100,105,150,200];
-var colDistances =[50,100,150,200,250];
+var colWidths =[80,85,100,105,150,200];
+var colDistances =[50,100];
 var COL_HEIGHT = 200;
 var startX = 50;
 var ballRadius = 10;
@@ -12,6 +12,8 @@ var stickWidth = 5;
 var ballMove = 0;
 var gameState = true;
 var nextLevel = false;
+var stickLongEnough = false;
+var slide = false;
 
 var randWidth1 = random(colWidths);
 var randWidth2 = random(colWidths);
@@ -57,6 +59,7 @@ function stickGrow(){
 function renderStick(){
 	context.fillStyle ='gray';
 	context.fillRect(startX + randWidth1 - stickWidth, canvas.height - COL_HEIGHT - stickLength,stickWidth, stickLength);
+	// stickLongEnough = stickLength > randDistance && stickLength < randDistance + randWidth2 ;
 }
 
 //stick animation
@@ -98,6 +101,7 @@ function ballRoll(){
 	}
 	if(stickLength < randDistance || stickLength > randDistance + randWidth2){
 		console.log("DIE!!");
+
 	}
 
 	if(stickLength > randDistance && stickLength < randDistance + randWidth2){
@@ -110,26 +114,30 @@ function ballRoll(){
 			if(ballMove < randWidth1/2 + randDistance + randWidth2/2){
 				ballMove +=5;
 			}	
-			nextLevel = true;
 		}, 1500);
-		screenChange();
+
+		console.log('계속돔');
+		slide = true;
+		// screenChange();
 	}
 }
 
+var moveCol = 0;
 //screen change animation
 function screenChange(){
-	var moveCol = 0;
-	if(nextLevel){
-		if(randWidth1 + startX + randDistance > startX){
+	console.log("HEREHER");
+	if(slide){
+		// if(randWidth1 + startX + randDistance - moveCol > startX){
+			console.log("INSDIE IF");
 			context.fillStyle='black';
-			context.fillRect(startX + randWidth1 + randDistance - moveCol,canvas.height - COL_HEIGHT, randWidth2, COL_HEIGHT);
-			moveCol= moveCol+10;
+			context.fillRect(startX + randWidth1 + randDistance - moveCol, canvas.height - COL_HEIGHT, randWidth2, COL_HEIGHT);
+			moveCol= moveCol+1;
+			randWidth1 = randWidth2;
+			randWidth2 = random(colWidths);
 		}
-		randWidth1 = randWidth2;
-		randWidth2 = random(colWidths);
-		context.fillRect(startX, canvas.height - COL_HEIGHT, randWidth2, COL_HEIGHT);
-		stickLength = 0;
-	}
+		// context.fillRect(startX, canvas.height - COL_HEIGHT, randWidth2, COL_HEIGHT);
+		// stickLength = 0;
+		console.log(stickLength);
 }
 
 function draw(){	
@@ -151,6 +159,16 @@ document.addEventListener('mousedown', function(){
 
 document.addEventListener('mouseup', function(){
 	pressed = false;
+	screenChange();
 	console.log("up");
 });
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
 
