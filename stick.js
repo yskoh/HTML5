@@ -1,49 +1,49 @@
-// function BufferLoader(context, urlList, callback) {
-//   this.context = context;
-//   this.urlList = urlList;
-//   this.onload = callback;
-//   this.bufferList = new Array();
-//   this.loadCount = 0;
-// }
+function BufferLoader(context, urlList, callback) {
+  this.context = context;
+  this.urlList = urlList;
+  this.onload = callback;
+  this.bufferList = new Array();
+  this.loadCount = 0;
+}
 
-// BufferLoader.prototype.loadBuffer = function(url, index) {
-//   // Load buffer asynchronously
-//   var request = new XMLHttpRequest();
-//   request.open("GET", url, true);
-//   request.responseType = "arraybuffer";
+BufferLoader.prototype.loadBuffer = function(url, index) {
+  // Load buffer asynchronously
+  var request = new XMLHttpRequest();
+  request.open("GET", url, true);
+  request.responseType = "arraybuffer";
 
-//   var loader = this;
+  var loader = this;
 
-//   request.onload = function() {
-//     // Asynchronously decode the audio file data in request.response
-//     loader.context.decodeAudioData(
-//       request.response,
-//       function(buffer) {
-//         if (!buffer) {
-//           alert('error decoding file data: ' + url);
-//           return;
-//         }
-//         loader.bufferList[index] = buffer;
-//         if (++loader.loadCount == loader.urlList.length)
-//           loader.onload(loader.bufferList);
-//       },
-//       function(error) {
-//         console.error('decodeAudioData error', error);
-//       }
-//     );
-//   }
+  request.onload = function() {
+    // Asynchronously decode the audio file data in request.response
+    loader.context.decodeAudioData(
+      request.response,
+      function(buffer) {
+        if (!buffer) {
+          alert('error decoding file data: ' + url);
+          return;
+        }
+        loader.bufferList[index] = buffer;
+        if (++loader.loadCount == loader.urlList.length)
+          loader.onload(loader.bufferList);
+      },
+      function(error) {
+        console.error('decodeAudioData error', error);
+      }
+    );
+  }
 
-//   request.onerror = function() {
-//     alert('BufferLoader: XHR error');
-//   }
+  request.onerror = function() {
+    alert('BufferLoader: XHR error');
+  }
 
-//   request.send();
-// }
+  request.send();
+}
 
-// BufferLoader.prototype.load = function() {
-//   for (var i = 0; i < this.urlList.length; ++i)
-//   this.loadBuffer(this.urlList[i], i);
-// }
+BufferLoader.prototype.load = function() {
+  for (var i = 0; i < this.urlList.length; ++i)
+  this.loadBuffer(this.urlList[i], i);
+}
 
 var context;
 window.addEventListener('load', init, false);
@@ -51,18 +51,20 @@ window.addEventListener('load', init, false);
 function init() {
     try {
         context = new AudioContext();
-        // bufferLoader = new BufferLoader( 
-        // 	context,
-        // 	[
+        bufferLoader = new BufferLoader( 
+         	context,
+        	[
+        	//bgm
+        	'bgm.mp3'
         // 	//blip
         // 	'blip.mp3',
         // 	//toong
         // 	'toong.mp3'
-        // 	],
-        // 	finishedLoading
-        // 	);
+        	],
+        	finishedLoading
+        	);
 
-        // bufferLoader.load();
+        bufferLoader.load();
     	loadSound();
     	loadSound2();
     } catch (e) {
@@ -73,6 +75,12 @@ function init() {
 var toong = null;
 var blip = null;
 
+function finishedLoading(bufferList){
+	var bgm = context.createBufferSource();
+	bgm.buffer = bufferList[0];
+	bgm.connect(context.destination);
+	bgm.start(0);
+}
 // function finishedLoading(bufferList){
 // 	console.log("in");
 // 	blip = context.createBufferSource();
