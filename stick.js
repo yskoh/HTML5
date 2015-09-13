@@ -1,3 +1,135 @@
+// function BufferLoader(context, urlList, callback) {
+//   this.context = context;
+//   this.urlList = urlList;
+//   this.onload = callback;
+//   this.bufferList = new Array();
+//   this.loadCount = 0;
+// }
+
+// BufferLoader.prototype.loadBuffer = function(url, index) {
+//   // Load buffer asynchronously
+//   var request = new XMLHttpRequest();
+//   request.open("GET", url, true);
+//   request.responseType = "arraybuffer";
+
+//   var loader = this;
+
+//   request.onload = function() {
+//     // Asynchronously decode the audio file data in request.response
+//     loader.context.decodeAudioData(
+//       request.response,
+//       function(buffer) {
+//         if (!buffer) {
+//           alert('error decoding file data: ' + url);
+//           return;
+//         }
+//         loader.bufferList[index] = buffer;
+//         if (++loader.loadCount == loader.urlList.length)
+//           loader.onload(loader.bufferList);
+//       },
+//       function(error) {
+//         console.error('decodeAudioData error', error);
+//       }
+//     );
+//   }
+
+//   request.onerror = function() {
+//     alert('BufferLoader: XHR error');
+//   }
+
+//   request.send();
+// }
+
+// BufferLoader.prototype.load = function() {
+//   for (var i = 0; i < this.urlList.length; ++i)
+//   this.loadBuffer(this.urlList[i], i);
+// }
+
+var context;
+window.addEventListener('load', init, false);
+
+function init() {
+    try {
+        context = new AudioContext();
+        // bufferLoader = new BufferLoader( 
+        // 	context,
+        // 	[
+        // 	//blip
+        // 	'blip.mp3',
+        // 	//toong
+        // 	'toong.mp3'
+        // 	],
+        // 	finishedLoading
+        // 	);
+
+        // bufferLoader.load();
+    	loadSound();
+    	loadSound2();
+    } catch (e) {
+        alert('web audio api not supported');
+    }
+}
+
+var toong = null;
+var blip = null;
+
+// function finishedLoading(bufferList){
+// 	console.log("in");
+// 	blip = context.createBufferSource();
+// 	blip.buffer = bufferList[0];
+
+// 	toong = context.createBufferSource();
+// 	toong.buffer = bufferList[1];
+// 	toong.connect(context.destination);
+	
+// }
+
+// function playBlip(bufferList){
+// 	console.log("in blip");
+// 	blip.connect(context.destination);
+// 	blip.start(0);
+// }
+
+// function playToong(){
+// 	console.log("intoong");
+// 	toong.start(0);
+// }
+
+function loadSound() {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'blip.mp3', true);
+    request.responseType = 'arraybuffer';
+
+    request.onload = function() {
+        context.decodeAudioData(request.response, function(buffer) {
+            blip = buffer;
+            // playSound(dogBark);
+        });
+    }
+    request.send();
+}
+
+function loadSound2() {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'toong.mp3', true);
+    request.responseType = 'arraybuffer';
+
+    request.onload = function() {
+        context.decodeAudioData(request.response, function(buffer) {
+            toong = buffer;
+        });
+    }
+    request.send();
+}
+
+function playSound(buffer) {
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+}
+
+//////////////////////////////////////////////
 var BridgeGame = {};
 
 BridgeGame.Map = (function() {
@@ -23,19 +155,19 @@ BridgeGame.Map = (function() {
         getWidth: function() {
             return this.getCanvas().width;
         },
-        isMoveFinished : function(){
+        isMoveFinished: function() {
             return moveFinished;
         },
-        moveToNextStage : function() {
-            if(!BridgeGame.thirdColumn) {
-                BridgeGame.thirdColumn = new BridgeGame.Column(BridgeGame.secondColumn.getEndPoint() + BridgeGame.distance);    
+        moveToNextStage: function() {
+            if (!BridgeGame.thirdColumn) {
+                BridgeGame.thirdColumn = new BridgeGame.Column(BridgeGame.secondColumn.getEndPoint() + BridgeGame.distance);
             } else {
                 BridgeGame.thirdColumn.drawAgain();
                 this.moveMapToLeft();
             }
         },
-        moveMapToLeft : function() {
-            if(BridgeGame.secondColumn.getStartPoint() > BridgeGame.START_X) {
+        moveMapToLeft: function() {
+            if (BridgeGame.secondColumn.getStartPoint() > BridgeGame.START_X) {
                 BridgeGame.firstColumn.moveLeft();
                 BridgeGame.secondColumn.moveLeft();
                 BridgeGame.thirdColumn.moveLeft();
@@ -50,10 +182,9 @@ BridgeGame.Map = (function() {
             moveFinished = false;
             BridgeGame.stickGrowable = true;
         },
-        failMessage : function(){
-            //143
+        failMessage: function() {
             this.gameOver = true;
-            document.getElementById('showGameStatus').style.display="block";
+            document.getElementById('showGameStatus').style.display = "block";
             moveFinished = true;
         }
     }
@@ -87,7 +218,7 @@ BridgeGame.Column.prototype.getEndPoint = function() {
     return this.startX + this.width;
 };
 BridgeGame.Column.prototype.moveLeft = function() {
-    return this.startX = this.startX-3;
+    return this.startX = this.startX - 3;
 };
 BridgeGame.Column.prototype.draw = function(startX) {
     var context = BridgeGame.Map.getContext();
@@ -123,23 +254,23 @@ BridgeGame.Ball = (function() {
             context.fill();
             context.closePath();
         },
-        isMoveFinished : function(){
+        isMoveFinished: function() {
             return moveFinished;
         },
-        resetStatus : function() {
+        resetStatus: function() {
             moveFinished = false;
             positionX = -1;
         },
-        roll : function() {
+        roll: function() {
             var stick = BridgeGame.Stick;
             var distance = BridgeGame.secondColumn.getStartPoint() - BridgeGame.firstColumn.getEndPoint();
             // if no Bridge
-            if(!stick.length) {
+            if (!stick.length) {
                 return;
             }
 
             // longer or shorter than distance
-            if(stick.length < distance || stick.length > distance + BridgeGame.secondColumn.getWidth()){
+            if (stick.length < distance || stick.length > distance + BridgeGame.secondColumn.getWidth()) {
                 console.log("DIE!!");
                 var context = BridgeGame.Map.getContext();
                 context.beginPath();
@@ -148,18 +279,20 @@ BridgeGame.Ball = (function() {
                 context.fill();
                 context.closePath();
 
-                if(positionX < BridgeGame.firstColumn.getEndPoint() + BridgeGame.Stick.length - 50){
-                    positionX +=5;
+                if (positionX < BridgeGame.firstColumn.getEndPoint() + BridgeGame.Stick.length - 50) {
+                    positionX += 5;
                 } else {
                     //clearRECt하고 다시 그려준다??
-                context.clearRect(0,0,BridgeGame.Map.getWidth(), BridgeGame.Map.getHeight());
+                    context.clearRect(0, 0, BridgeGame.Map.getWidth(), BridgeGame.Map.getHeight());
                     BridgeGame.firstColumn.drawAgain();
                     BridgeGame.secondColumn.drawAgain();
                     context.beginPath();
-                    context.arc(BridgeGame.firstColumn.getEndPoint() + BridgeGame.Stick.length, BridgeGame.Map.getHeight()- ballRadius, ballRadius, startAngle, endAngle);
+                    context.arc(BridgeGame.firstColumn.getEndPoint() + BridgeGame.Stick.length, BridgeGame.Map.getHeight() - ballRadius, ballRadius, startAngle, endAngle);
                     context.fillStyle = 'pink';
                     context.fill();
                     context.closePath();
+//                    //toong sound
+                    playSound(toong);
                     moveFinished = true;
                     BridgeGame.stageSuccess = false;
                     //기둥 안 생기게
@@ -168,7 +301,7 @@ BridgeGame.Ball = (function() {
             }
 
             //if long enough
-            if(stick.length > distance && stick.length < distance + BridgeGame.secondColumn.getWidth()){
+            if (stick.length >= distance && stick.length < distance + BridgeGame.secondColumn.getWidth()) {
                 var context = BridgeGame.Map.getContext();
                 context.beginPath();
                 context.arc(BridgeGame.firstColumn.getMidPoint() + positionX, BridgeGame.Map.getHeight() - BridgeGame.secondColumn.getHeight() - ballRadius, ballRadius, startAngle, endAngle);
@@ -176,8 +309,8 @@ BridgeGame.Ball = (function() {
                 context.fill();
                 context.closePath();
 
-                if(positionX < BridgeGame.secondColumn.getMidPoint() - BridgeGame.firstColumn.getMidPoint()){
-                    positionX +=5;
+                if (positionX < BridgeGame.secondColumn.getMidPoint() - BridgeGame.firstColumn.getMidPoint()) {
+                    positionX += 5;
                 } else {
                     moveFinished = true;
                     BridgeGame.stageSuccess = true;
@@ -193,7 +326,7 @@ BridgeGame.Stick = {
     growAmount: 3,
     color: "grey",
     angle: -90,
-    fallOverFinished : false,
+    fallOverFinished: false,
 
     grow: function() {
         if (BridgeGame.Map.isPressed()) {
@@ -210,16 +343,18 @@ BridgeGame.Stick = {
         map.getContext().fillStyle = this.color;
         map.getContext().fillRect(columnEndPoint - this.thickness, BridgeGame.Map.getHeight() - columnHeight - this.length, this.thickness, this.length);
         map.getContext().closePath();
-        
+        // loadSound('http://streaming.radionomy.com/Chill-Out-Radio-Gaia');
+
         if (map.isPressed()) {
+//			play blip sound
+        	playSound(blip);
             this.length += this.growAmount;
-        } 
+        }
     },
     fall: function(columnEndPoint, columnHeight) {
         this.fallRender(columnEndPoint, columnHeight);
-        // BridgeGame.stickGrowable = false;
     },
-    fallRender: function(columnEndPoint, columnHeight){
+    fallRender: function(columnEndPoint, columnHeight) {
         var context = BridgeGame.Map.getContext();
         var stickX = columnEndPoint;
         var stickY = BridgeGame.Map.getHeight() - columnHeight;
@@ -234,8 +369,8 @@ BridgeGame.Stick = {
         endX = stickX + Math.cos(this.radianToDegree(this.angle)) * this.length;
         endY = stickY + Math.sin(this.radianToDegree(this.angle)) * this.length;
 
-        context.moveTo(stickX,stickY + this.thickness / 2);
-        context.lineTo(endX,endY + this.thickness / 2);
+        context.moveTo(stickX, stickY + this.thickness / 2);
+        context.lineTo(endX, endY + this.thickness / 2);
         context.closePath();
         context.stroke();
 
@@ -245,7 +380,7 @@ BridgeGame.Stick = {
             this.fallOverFinished = true;
         }
     },
-    isFallOverFinished: function(){
+    isFallOverFinished: function() {
         return this.fallOverFinished;
     },
     radianToDegree: function(angle) {
@@ -261,6 +396,7 @@ BridgeGame.Stick = {
 // 게임을 완전 처음 들어왔을때
 BridgeGame.gameInit = function() {
     this.drawBall();
+    this.bindPress = this.whileMouseIsPressed.bind(this);
     this.addMouseEvent();
 }
 
@@ -270,7 +406,7 @@ BridgeGame.drawBall = function() {
 
 BridgeGame.addMouseEvent = function() {
     var map = BridgeGame.Map.getCanvas();
-    map.addEventListener("mousedown", this.whileMouseIsPressed.bind(this));
+    map.addEventListener("mousedown", this.bindPress);
     map.addEventListener("mouseup", this.whenMouseIsUp.bind(this));
 }
 
@@ -280,33 +416,36 @@ BridgeGame.drawAll = function() {
 
     BridgeGame.firstColumn.drawAgain();
     BridgeGame.secondColumn.drawAgain();
-    
-    if(BridgeGame.Stick.angle != 0) {
-        BridgeGame.drawBall();  
+
+    if (BridgeGame.Stick.angle != 0) {
+        BridgeGame.drawBall();
     }
-    
-    if(BridgeGame.Map.isPressed() && BridgeGame.stickGrowable == true) {
-        BridgeGame.Stick.grow();    
+
+    if (BridgeGame.Map.isPressed() && BridgeGame.stickGrowable == true) {
+        BridgeGame.Stick.grow();
     }
 
     // if(BridgeGame.Map.isPressed() == false && BridgeGame.Map.isMoveFinished() == false) {
-    if(BridgeGame.Map.isPressed() == false || (BridgeGame.Map.isPressed == true && BridgeGame.Map.stickGrowable==false)&& BridgeGame.Map.isMoveFinished() == false) {
+    if (BridgeGame.Map.isPressed() == false || (BridgeGame.Map.isPressed == true && BridgeGame.Map.stickGrowable == false) && BridgeGame.Map.isMoveFinished() == false) {
         BridgeGame.Stick.fall(BridgeGame.firstColumn.getEndPoint(), BridgeGame.firstColumn.getHeight());
     }
 
-    if(BridgeGame.Stick.isFallOverFinished()) {
+    if (BridgeGame.Stick.isFallOverFinished()) {
         BridgeGame.Ball.roll();
     }
 
-    if(BridgeGame.Ball.isMoveFinished() && BridgeGame.stageSuccess == true){
+    if (BridgeGame.Ball.isMoveFinished() && BridgeGame.stageSuccess == true) {
         BridgeGame.Map.moveToNextStage();
     }
 
-    if(BridgeGame.Map.isMoveFinished() == false) {
+    if (BridgeGame.Map.isMoveFinished() == false) {
         BridgeGame.requestAnimationFrame = window.requestAnimationFrame(this.drawAll.bind(this));
     } else {
+        //loop  끝나는 시점
         window.cancelAnimationFrame(BridgeGame.requestAnimationFrame);
 
+        var map = BridgeGame.Map.getCanvas();
+        map.addEventListener("mousedown", this.bindPress);
         BridgeGame.Stick.resetStatus();
         BridgeGame.Ball.resetStatus();
         BridgeGame.Map.resetStatus();
@@ -315,18 +454,25 @@ BridgeGame.drawAll = function() {
 
 BridgeGame.whileMouseIsPressed = function() {
     BridgeGame.Map.setPressed(true);
-     document.getElementById('showGameStatus').style.display="none";
+    document.getElementById('showGameStatus').style.display = "none";
     window.requestAnimationFrame(this.drawAll.bind(this));
 }
 
 BridgeGame.whenMouseIsUp = function() {
     BridgeGame.Map.setPressed(false);
+    BridgeGame.removeHandler();
+
 }
 
 BridgeGame.getRandomValue = function(array) {
     var max = array.length - 1;
     var min = 0;
     return array[Math.round(Math.random() * (max - min) + min)];
+}
+
+BridgeGame.removeHandler = function() {
+    var map = BridgeGame.Map.getCanvas();
+    map.removeEventListener("mousedown", this.bindPress);
 }
 
 BridgeGame.START_X = 50;

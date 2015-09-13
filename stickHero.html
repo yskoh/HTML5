@@ -2,8 +2,6 @@
     <head>
         <title>KyunWoo&Jiknyo</title>
         <meta charset="utf-8">
-    </head>
-    <body>
         <style type="text/css">
             .main {
                 width: 800px;
@@ -17,6 +15,7 @@
                 top:0px;
                 left: 0px;
                 border:1px solid black;
+                 -webkit-user-select: none;
             }
 
             #showGameStatus{
@@ -35,6 +34,8 @@
                 font-style: bold;
             }
         </style>
+    </head>
+    <body>
         <div class="main">
             <div id="showGameStatus">
                 <img src="die.png" width="100px" height="100px">
@@ -43,7 +44,7 @@
             <img src="clouds.png" width="602px" height="502px">
             <canvas class="canvas" width="602px" height="500px"></canvas>
         </div>
-
-        <script type="text/javascript" src="hoStick.js"></script>
+        <button id="sound">click</button>
+        <script type="text/javascript" src="stick.js"></script>
     </body>
 </html>
