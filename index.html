@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome Stick Hero!</title>
+	<!-- <link rel="stylesheet" type="text/css" href="css/ppodo.css"> -->
+</head>
+<body>
+<div id="indexWrap">
+	<div id="grape">
+		<img id="justBanana" src="./banana.jpg" >
+	</div>
+	<div id="indexBtns">
+		<button class="index" id="login">LOG IN</button>
+		<button class="index" id="register">REGISTER</button>
+	</div>
+</div>
+<script type="text/javascript">
+//a tag에 padding을 주고, display:inline-block;
+	document.getElementById('login').addEventListener('click', function(){
+	location.href="./login";
+	});
+
+	document.getElementById('register').addEventListener('click', function(){
+		location.href="./register";
+	});
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>KyunWoo&Jiknyo</title>
+        <title>Stick Hero</title>
         <meta charset="utf-8">
         <style type="text/css">
             .main {
@@ -33,18 +33,26 @@
                 font-size: 40px;
                 font-style: bold;
             }
+            #scoreBox{
+              /*  width: 10px;
+                height:10px;*/
+                background-color: white;
+                float:right;
+                font-size:14em;
+            }
         </style>
     </head>
     <body>
+        <a href="/logout">LOG OUT</a>
         <div class="main">
+            <div id="scoreBox"></div>
             <div id="showGameStatus">
-                <img src="die.png" width="100px" height="100px">
+                <img src="img/die.png" width="100px" height="100px">
                 <p>GAME OVER</p>
             </div>
-            <img src="clouds.png" width="602px" height="502px">
+            <img src="img/clouds.png" width="602px" height="502px">
             <canvas class="canvas" width="602px" height="500px"></canvas>
         </div>
-        <button id="sound">click</button>
-        <script type="text/javascript" src="stick.js"></script>
+        <script type="text/javascript" src="js/stick.js"></script>
     </body>
 </html>

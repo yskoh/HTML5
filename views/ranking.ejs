@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<!-- <link rel="stylesheet" href="listOfNews.css"> -->
+	<title>Rankings</title>
+</head>
+<body>
+	<div class="header">
+		Rankings
+		<div class="rightupper">
+		</div>
+	</div>		
+	<div class = "listnews">
+		<ul>
+			<% score.forEach(function (item, index){ %> 
+				<li class="rankings">
+					<span class = "title" id="title"><%=item.userid%></span>
+					<span class = "reporter"><%= item.score %></span>
+				</li>
+			<% }); %>
+		</ul>
+	</div>
+</body>
+</html>
